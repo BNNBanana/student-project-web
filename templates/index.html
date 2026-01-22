@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="text-center space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-cyan">
+        <h1 class="text-3xl md:text-4xl font-bold text-navy mb-4">ระบบจัดเก็บเล่มรายงาน คู่มือ และโค้ดโครงงาน</h1>
+        <h2 class="text-xl text-gray-600 mb-6">แผนกวิชาคอมพิวเตอร์เทคโนโลยี</h2>
+        <p class="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            ยินดีต้อนรับสู่คลังปัญญาของเรา! แพลตฟอร์มนี้ออกแบบมาเพื่อรวบรวมผลงานอันทรงคุณค่าของนักศึกษา 
+            เพื่อเป็นฐานข้อมูลสำหรับการสืบค้น ต่อยอด และเรียนรู้ ไม่ว่าจะเป็นเล่มรายงานฉบับสมบูรณ์ 
+            คู่มือการใช้งาน หรือ Source Code ของโครงงานต่างๆ 
+        </p>
+    </div>
+
+    <!-- Big Add Button -->
+    <div class="py-8">
+        <button onclick="toggleModal('addProjectModal')" 
+                class="bg-navy hover:bg-cyan text-white hover:text-navy font-bold py-4 px-10 rounded-full text-xl shadow-xl transform transition hover:scale-105 duration-300 flex items-center mx-auto gap-3">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            ADD PROJECT
+        </button>
+        <p class="mt-3 text-gray-600 text-sm">คลิกเพื่อเพิ่มข้อมูลโปรเจคใหม่ลงในฐานข้อมูล</p>
+    </div>
+
+    <!-- Recent History -->
+    <div class="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto text-left">
+        <h3 class="text-xl font-bold text-navy mb-4 border-b pb-2 border-gray-200">ประวัติการเพิ่มโปรเจคล่าสุด</h3>
+        <ul class="space-y-3">
+            {% for log in recent_history %}
+            <li class="flex items-center justify-between text-sm text-gray-700 bg-gray-50 p-3 rounded hover:bg-gray-100 transition">
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full {{ 'bg-green-500' if log.action == 'เพิ่มข้อมูล' else 'bg-yellow-500' if log.action == 'แก้ไขข้อมูล' else 'bg-red-500' }}"></span>
+                    {{ log.action }}: <span class="font-semibold">{{ log.project_name }}</span>
+                </span>
+                <span class="text-gray-400 text-xs">{{ log.timestamp }}</span>
+            </li>
+            {% else %}
+            <li class="text-gray-400 text-center italic">ยังไม่มีประวัติการดำเนินการ</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- Add Project Modal -->
+<div id="addProjectModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 justify-center items-center backdrop-blur-sm">
+    <div class="relative p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-2xl leading-6 font-bold text-navy text-center mb-6">เพิ่มโปรเจคใหม่</h3>
+            <form action="/add_project" method="POST" enctype="multipart/form-data" class="text-left space-y-4 px-4">
+                
+                <!-- Project Name -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">ชื่อโปรเจค</label>
+                    <input type="text" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-cyan">
+                </div>
+
+                <!-- Owners -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">ผู้รับผิดชอบ 1</label>
+                        <input type="text" name="owner1" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">ผู้รับผิดชอบ 2</label>
+                        <input type="text" name="owner2" placeholder="-" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan">
+                    </div>
+                </div>
+
+                <!-- Level & Year -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">ระดับชั้น</label>
+                        <input type="text" name="level" placeholder="เช่น ปวช.3/1" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">ปีการศึกษา</label>
+                        <select name="year_select" onchange="checkYearInput(this)" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan">
+                            <option value="2568">ปีการศึกษา 2568</option>
+                            <option value="2569">ปีการศึกษา 2569</option>
+                            <option value="other">เพิ่มเติม (ระบุเอง)</option>
+                        </select>
+                        <div id="year_custom_container" class="hidden mt-2">
+                            <input type="text" name="year_custom" id="year_custom" placeholder="ระบุปีการศึกษา" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">รายละเอียดโปรเจค</label>
+                    <textarea name="details" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan"></textarea>
+                </div>
+
+                <!-- Files -->
+                <div class="space-y-3 bg-gray-50 p-4 rounded border border-gray-200">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold">แนบไฟล์เล่มโครงการ (PDF)</label>
+                        <input type="file" name="file_report" accept=".pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-navy file:text-white hover:file:bg-cyan">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold">แนบไฟล์คู่มือ (PDF)</label>
+                        <input type="file" name="file_manual" accept=".pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-navy file:text-white hover:file:bg-cyan">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold">ไฟล์โค้ด (Zip/GitHub)</label>
+                        <input type="file" name="file_code" accept=".zip,.rar" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-navy file:text-white hover:file:bg-cyan">
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex items-center justify-end gap-3 mt-6">
+                    <button type="button" onclick="toggleModal('addProjectModal')" class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-navy text-white text-base font-medium rounded-md shadow-sm hover:bg-cyan hover:text-navy focus:outline-none focus:ring-2 focus:ring-navy transition-colors">
+                        ตกลง
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

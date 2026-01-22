@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เว็บเก็บเล่มรายงาน-คู่มือ-โค้ดโครงงาน เทคโนโลยีคอมพิวเตอร์</title>
+    <!-- Tailwind CSS (ใช้ CDN เพื่อความสะดวก) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 สำหรับ Popup สวยๆ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#071952',
+                        cyan: '#37B7C3',
+                        lightgray: '#DBD3D3',
+                    },
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #DBD3D3; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo / Title -->
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <svg class="w-8 h-8 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <span class="font-bold text-lg tracking-wide">Computer Tech Project Repo</span>
+                </div>
+                
+                <!-- Menu Dropdown (Mobile & Desktop use simple hover/click logic or just a clean list for expert feel) -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="/" class="{{ 'bg-cyan text-navy' if page == 'home' else 'hover:bg-cyan hover:text-navy' }} px-3 py-2 rounded-md text-sm font-medium transition-colors">หน้าแรก</a>
+                        
+                        <div class="relative group">
+                            <button class="hover:bg-cyan hover:text-navy px-3 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center">
+                                เมนูเพิ่มเติม 
+                                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Dropdown Content -->
+                            <div class="absolute right-0 mt-0 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform z-50">
+                                <a href="/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">หน้าแรก</a>
+                                <a href="/projects" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">โปรเจคที่มีอยู่ (แก้ไข/ลบ)</a>
+                                <a href="/history" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">ประวัติการดำเนินการ</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- Flash Messages Logic -->
+        <!-- แก้ไข: ย้าย Logic การวนลูป Jinja ไปไว้ใน data-attribute เพื่อป้องกัน SyntaxError ในหน้า Preview -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div id="flash-messages-data" 
+                 data-messages='[
+                    {% for category, message in messages %}
+                        {"category": "{{ category }}", "message": "{{ message }}"}{{ "," if not loop.last }}
+                    {% endfor %}
+                 ]' 
+                 style="display:none;">
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    try {
+                        var flashData = document.getElementById('flash-messages-data');
+                        if (flashData) {
+                            var messages = JSON.parse(flashData.dataset.messages);
+                            messages.forEach(function(msg) {
+                                Swal.fire({
+                                    icon: msg.category,
+                                    title: msg.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            });
+                        }
+                    } catch (e) {
+                        console.warn("Flash message parsing skipped (Static Preview Mode)");
+                    }
+                });
+            </script>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-white py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="font-bold text-cyan text-lg">Developed by: Anattikorn Makchongdee</p>
+            <p class="text-gray-300 text-sm mt-2">
+                Contact: bnntv2005@gmail.com | Facebook: Anattikorn Makchongdee
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        function toggleModal(modalID) {
+            document.getElementById(modalID).classList.toggle("hidden");
+            document.getElementById(modalID).classList.toggle("flex");
+        }
+        
+        // Logic for custom year input
+        function checkYearInput(select) {
+            const customInput = document.getElementById('year_custom_container');
+            if (select.value === 'other') {
+                customInput.classList.remove('hidden');
+                document.getElementById('year_custom').required = true;
+            } else {
+                customInput.classList.add('hidden');
+                document.getElementById('year_custom').required = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold text-navy mb-8 border-l-8 border-cyan pl-4">ข้อมูลโครงงานทั้งหมด</h1>
+
+    {% for year, year_projects in projects_by_year.items() %}
+    <div class="mb-10 animate-fade-in-up">
+        <h2 class="text-2xl font-bold text-white bg-navy px-4 py-2 rounded-t-lg inline-block">
+            ปีการศึกษา {{ year }}
+        </h2>
+        <div class="bg-white rounded-b-lg rounded-r-lg shadow-md p-6 border-t-4 border-navy grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for project in year_projects %}
+            <div class="border border-gray-200 rounded-lg hover:shadow-xl transition duration-300 flex flex-col h-full relative group">
+                <!-- Project Card Content -->
+                <div class="p-5 flex-grow">
+                    <h3 class="text-xl font-bold text-navy mb-2 group-hover:text-cyan transition">{{ project.name }}</h3>
+                    <p class="text-sm text-gray-600 mb-4">{{ project.details }}</p>
+                    
+                    <div class="text-sm text-gray-500 space-y-1">
+                        <p><strong class="text-navy">ผู้จัดทำ:</strong> {{ project.owner1 }}, {{ project.owner2 }}</p>
+                        <p><strong class="text-navy">ระดับชั้น:</strong> {{ project.level }}</p>
+                    </div>
+
+                    <!-- Files Links -->
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        {% if project.file_report %}
+                        <a href="{{ url_for('static', filename='uploads/' + project.file_report) }}" target="_blank" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200">PDF เล่ม</a>
+                        {% endif %}
+                        {% if project.file_code %}
+                        <a href="{{ url_for('static', filename='uploads/' + project.file_code) }}" class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">Source Code</a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Action Buttons (Edit/Delete) -->
+                <div class="bg-gray-50 p-3 border-t flex justify-end gap-2">
+                    <!-- Edit Button triggers modal (Simplified) -->
+                    <!-- Note: For full dynamic edit, you normally use JS to populate a modal. Here is a simple structure placeholder -->
+                    <button class="text-yellow-600 hover:text-yellow-800 font-bold text-sm">แก้ไข</button>
+                    
+                    <!-- Delete Form -->
+                    <form action="/delete_project/{{ project.id }}" method="POST" onsubmit="return confirm('ยืนยันการลบโปรเจคนี้?');">
+                        <button type="submit" class="text-red-600 hover:text-red-800 font-bold text-sm">ลบ</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+        <div class="text-center py-20 bg-white rounded-lg shadow">
+            <p class="text-gray-500 text-xl">ยังไม่มีข้อมูลโครงงาน</p>
+            <a href="/" class="text-cyan hover:underline mt-2 inline-block">กลับไปเพิ่มข้อมูลหน้าแรก</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
